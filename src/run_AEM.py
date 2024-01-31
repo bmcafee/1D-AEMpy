@@ -26,14 +26,15 @@ area, depth, volume = get_hypsography(hypsofile = '../input/bathymetry.csv',
                             dx = dx, nx = nx)
                             
 ## atmospheric boundary conditions
-meteo_all = provide_meteorology(meteofile = '../input/Mendota_2002.csv',
+meteo_all = provide_meteorology(meteofile = '../input/Mendota_2016_2024_for_1DAEMpy.csv',
                     secchifile = None, 
                     windfactor = 1.0)
                      
-## time step discretization                      
+## time step discretization 
+n_years = 5                   
 hydrodynamic_timestep = 24 * dt
-total_runtime =  (1095) * hydrodynamic_timestep/dt  #365 *1 # 14 * 365
-startTime =   (140 + 365*12) * hydrodynamic_timestep/dt - (365*24*2) #150 * 24 * 3600
+total_runtime =  (365 * n_years) * hydrodynamic_timestep/dt  #365 *1 # 14 * 365
+startTime =   (140) * hydrodynamic_timestep/dt #- (365*24*2) #150 * 24 * 3600
 endTime =  (startTime + total_runtime) # * hydrodynamic_timestep/dt) - 1
 
 startingDate = meteo_all[0]['date'][startTime] #* hydrodynamic_timestep/dt]
@@ -120,10 +121,10 @@ res = run_wq_model(
     conversion_constant = 1e-4,#0.1
     sed_sink = -0.06 / 86400, #0.01
     k_half = 0.5,
-    resp_docr = 0.0001/86400, # 0.001 0.0001
+    resp_docr = 0.001/86400, # 0.001 0.0001
     resp_docl = 0.01/86400, # 0.01 0.05
     resp_poc = 0.03/86400, # 0.1 0.001 0.0001
-    settling_rate = 0.3/86400,
+    settling_rate = 0.1/86400, #0.3
     sediment_rate = 0.3/86400,
     piston_velocity = 1.0/86400,
     light_water = 0.125,
@@ -183,8 +184,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -205,8 +206,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -224,8 +225,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -244,8 +245,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -264,8 +265,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -283,8 +284,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -303,8 +304,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -323,8 +324,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -342,8 +343,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -362,8 +363,8 @@ xticks_ix = np.array(ax.get_xticks()).astype(int)
 time_label = times[xticks_ix]
 nelement = len(times)//N_pts
 #time_label = time_label[::nelement]
-ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts))
-ax.set_xticklabels(time_label, rotation=0)
+ax.xaxis.set_major_locator(plt.MaxNLocator(N_pts * n_years))
+ax.set_xticklabels(time_label, rotation=45, ha = 'right')
 yticks_ix = np.array(ax.get_yticks()).astype(int)
 depth_label = yticks_ix / 2
 ax.set_yticklabels(depth_label, rotation=0)
@@ -413,3 +414,10 @@ plt.show()
 # phosphorus bc
 # ice npp
 # wind mixingS
+
+pd.DataFrame(temp).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_temp.csv")
+pd.DataFrame(o2).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_do.csv")
+pd.DataFrame(docr).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_docr.csv")
+pd.DataFrame(docl).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_docl.csv")
+pd.DataFrame(pocl).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_pocl.csv")
+pd.DataFrame(pocr).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_pocr.csv")
