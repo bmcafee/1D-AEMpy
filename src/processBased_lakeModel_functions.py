@@ -1708,6 +1708,137 @@ def do_sat_calc(temp, baro, altitude = 0, salinity = 0):
     o2_sat = 2.00907 + 3.22014*ts + 4.05010*ts**2 + 4.94457*ts**3 + -2.56847e-1*ts**4 + 3.88767*ts**5 - salinity*(6.24523e-3 + 7.37614e-3*ts + 1.03410e-2*ts**2 + 8.17083e-3*ts**3) - 4.88682e-7*salinity**2
     return exp(o2_sat) * mgL_mlL * press_corr
 
+def atmospheric_module(
+        un,
+        o2n,
+        docln,
+        docrn,
+        pocln,
+        pocrn,
+        area,
+        volume,
+        depth,
+        nx,
+        dt,
+        dx,
+        ice,
+        kd_ice,
+        Tair,
+        CC,
+        ea,
+        Jsw,
+        Jlw,
+        Uw,
+        Pa,
+        RH,
+        kd_light,
+        TP,
+        Hi = 0,
+        kd_snow = 0.9,
+        rho_fw = 1000,
+        rho_snow = 910,
+        Hs = 0,
+        sigma = 5.67e-8,
+        albedo = 0.1,
+        eps = 0.97,
+        emissivity = 0.97,
+        p2 = 1,
+        Cd = 0.0013,
+        sw_factor = 1.0,
+        at_factor = 1.0,
+        turb_factor = 1.0,
+        wind_factor = 1.0,
+        p_max = 1.0/86400,
+        IP = 0.1,
+        theta_npp = 1.08,
+        theta_r = 1.08,
+        conversion_constant = 0.1,
+        sed_sink = -1.0 / 86400,
+        k_half = 0.5,
+        piston_velocity = 1.0,
+        sw_to_par = 2.114):
+    
+    # if ice and Tair <= 0:
+    #   albedo = 0.3
+    #   IceSnowAttCoeff = exp(-kd_ice * Hi) * exp(-kd_snow * (rho_fw/rho_snow)* Hs)
+    # elif (ice and Tair >= 0):
+    #   albedo = 0.3
+    #   IceSnowAttCoeff = exp(-kd_ice * Hi) * exp(-kd_snow * (rho_fw/rho_snow)* Hs)
+    # elif not ice:
+    #   albedo = 0.1
+    #   IceSnowAttCoeff = 1
+    
+    ## (1) HEAT ADDITION
+    # surface heat flux
+    start_time = datetime.datetime.now()
+    
+    Tair = Tair * at_factor
+    Jsw = Jsw * sw_factor
+    Uw = Uw * wind_factor
+    
+    u = un
+    o2 = o2n
+    docr = docrn
+    docl = docln
+    pocr = pocrn
+    pocl = pocln
+
+    # light attenuation
+    
+    # if ice:
+    #     H =  IceSnowAttCoeff * (Jsw )  * np.exp(-(kd_light) * depth)
+    # else:
+    #     H =  (1- albedo) * (Jsw )  * np.exp(-(kd_light ) * depth)
+    
+    
+    if ice:
+        piston_velocity = 1e-5 / 86400
+        # IP_m = IP / 10
+    else:
+        #breakpoint()
+        k600 =  k_vachon(wind = Uw, area = area[0])
+        piston_velocity = k600_to_kgas(k600 = k600, temperature = Tair, gas = "O2")/86400
+        # IP_m = IP
+        
+    #npp = p_max * (1 - np.exp(-IP * H/p_max)) * TP * conversion_constant * theta_npp**(u - 20) * volume
+    # npp = H * sw_to_par * IP_m * TP  * theta_npp**(u - 20) * volume
+    
+    #breakpoint()
+    # o2 = o2n + dt * npp * 32/12 
+    # docr = docrn + dt * npp * (0.0)
+    # docl = docln + dt * npp * (0.2)
+    # pocr = pocrn + dt * npp * (0.0)
+    # pocl = pocln + dt * npp * (0.8)
+    
+    #breakpoint()
+    
+    #piston_velocity = 1
+    
+    #breakpoint()
+    o2[0] = (o2[0] +  # m/s g/m3 m2   m/s g/m3 m2 s
+        (piston_velocity * (do_sat_calc(u[0], 982.2, altitude = 258) - o2[0]/volume[0]) * area[0] ) * dt)
+    
+    #o2[(nx-1)] = o2[(nx-1)] + (theta_r**(u[(nx-1)] - 20) * sed_sink * area[nx-1] * o2[nx-1]/volume[nx-1]/(k_half +  o2[nx-1]/volume[nx-1])) * dt
+
+    #breakpoint()
+    end_time = datetime.datetime.now()
+    print("wq atm flux: " + str(end_time - start_time))
+    
+    # dat = {'o2': o2,
+    #        'docr': docr,
+    #        'docl': docl,
+    #        'pocr': pocr,
+    #        'pocl':pocl,
+    #        'npp': npp}
+    dat = {'o2': o2,
+           'docr': docr,
+           'docl': docl,
+           'pocr': pocr,
+           'pocl':pocl}
+
+    
+    return dat
+
 def boundary_module(
         un,
         o2n,
@@ -1792,12 +1923,12 @@ def boundary_module(
     
     
     if ice:
-        piston_velocity = 1e-5 / 86400
+        #piston_velocity = 1e-5 / 86400
         IP_m = IP / 10
     else:
         #breakpoint()
-        k600 =  k_vachon(wind = Uw, area = area[0])
-        piston_velocity = k600_to_kgas(k600 = k600, temperature = Tair, gas = "O2")/86400
+        #k600 =  k_vachon(wind = Uw, area = area[0])
+        #piston_velocity = k600_to_kgas(k600 = k600, temperature = Tair, gas = "O2")/86400
         IP_m = IP
         
     #npp = p_max * (1 - np.exp(-IP * H/p_max)) * TP * conversion_constant * theta_npp**(u - 20) * volume
@@ -1815,8 +1946,8 @@ def boundary_module(
     #piston_velocity = 1
     
     #breakpoint()
-    o2[0] = (o2[0] +  # m/s g/m3 m2   m/s g/m3 m2 s
-        (piston_velocity * (do_sat_calc(u[0], 982.2, altitude = 258) - o2[0]/volume[0]) * area[0] ) * dt)
+    # o2[0] = (o2[0] +  # m/s g/m3 m2   m/s g/m3 m2 s
+    #     (piston_velocity * (do_sat_calc(u[0], 982.2, altitude = 258) - o2[0]/volume[0]) * area[0] ) * dt)
     
     o2[(nx-1)] = o2[(nx-1)] + (theta_r**(u[(nx-1)] - 20) * sed_sink * area[nx-1] * o2[nx-1]/volume[nx-1]/(k_half +  o2[nx-1]/volume[nx-1])) * dt
 
@@ -2441,6 +2572,59 @@ def run_wq_model(
     kzm[:,idn] = kz
     um_diff[:, idn] = u
     
+    ## (WQ0) ATMOSPHERIC EXCHANGE
+    atmospheric_res = atmospheric_module(
+        un = u,
+        o2n = o2,
+        docrn = docr,
+        docln = docl,
+        pocrn = pocr,
+        pocln = pocl,
+        area = area,
+        volume = volume,
+        depth = depth, 
+        nx = nx,
+        dt = dt,
+        dx = dx,
+        ice = ice,
+        kd_ice = kd_ice,
+        Tair = Tair(n),
+        CC = CC(n),
+        ea = ea(n),
+        Jsw = Jsw(n),
+        Jlw = Jlw(n),
+        Uw = Uw(n),
+        Pa= Pa(n),
+        RH = RH(n),
+        kd_light = kd_light,
+        TP = TP(n),
+        Hi = Hi,
+        rho_snow = rho_snow,
+        Hs = Hs,
+        at_factor = at_factor,
+        sw_factor = sw_factor,
+        turb_factor = turb_factor,
+        wind_factor = wind_factor,
+        p_max = p_max,
+        IP = IP,
+        theta_npp = theta_npp,
+        theta_r = theta_r,
+        conversion_constant = conversion_constant,
+        sed_sink = sed_sink,
+        k_half = k_half,
+        piston_velocity = piston_velocity)
+    
+    o2 = atmospheric_res['o2']
+    docr = atmospheric_res['docr']
+    docl = atmospheric_res['docl']
+    pocr = atmospheric_res['pocr']
+    pocl = atmospheric_res['pocl']
+
+    o2_bc[:, idn] = o2
+    docr_bc[:, idn] = docr
+    docl_bc[:, idn] = docl
+    pocr_bc[:, idn] = pocr
+    pocl_bc[:, idn] = pocl
     
     
     ## (WQ1) BOUNDARY ADDITION

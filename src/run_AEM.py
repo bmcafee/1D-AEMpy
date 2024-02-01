@@ -31,10 +31,10 @@ meteo_all = provide_meteorology(meteofile = '../input/Mendota_2016_2024_for_1DAE
                     windfactor = 1.0)
                      
 ## time step discretization 
-n_years = 5                   
+n_years = 3                   
 hydrodynamic_timestep = 24 * dt
 total_runtime =  (365 * n_years) * hydrodynamic_timestep/dt  #365 *1 # 14 * 365
-startTime =   (140) * hydrodynamic_timestep/dt #- (365*24*2) #150 * 24 * 3600
+startTime =   (138) * hydrodynamic_timestep/dt #- (365*24*2) #150 * 24 * 3600
 endTime =  (startTime + total_runtime) # * hydrodynamic_timestep/dt) - 1
 
 startingDate = meteo_all[0]['date'][startTime] #* hydrodynamic_timestep/dt]
@@ -114,12 +114,12 @@ res = run_wq_model(
     Ice_min = 0.1,
     pgdl_mode = 'on',
     rho_snow = 250,
-    p_max = 1/86400,
+    p_max = 1/86400,#1
     IP = 3e-5/86400 ,#0.1, 3e-5
     theta_npp = 1.08,
     theta_r = 1.08, #1.08,
     conversion_constant = 1e-4,#0.1
-    sed_sink = -0.06 / 86400, #0.01
+    sed_sink = 0.02 / 86400, #0.01
     k_half = 0.5,
     resp_docr = 0.001/86400, # 0.001 0.0001
     resp_docl = 0.01/86400, # 0.01 0.05
