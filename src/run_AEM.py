@@ -31,10 +31,10 @@ meteo_all = provide_meteorology(meteofile = '../input/Mendota_2016_2024_for_1DAE
                     windfactor = 1.0)
                      
 ## time step discretization 
-n_years = 3                   
+n_years = 1                   
 hydrodynamic_timestep = 24 * dt
-total_runtime =  (365 * n_years) * hydrodynamic_timestep/dt  #365 *1 # 14 * 365
-startTime =   (138) * hydrodynamic_timestep/dt #- (365*24*2) #150 * 24 * 3600
+total_runtime =  (365 * n_years) * hydrodynamic_timestep/dt  
+startTime =   (138) * hydrodynamic_timestep/dt # DOY in 2016 * 24 hours
 endTime =  (startTime + total_runtime) # * hydrodynamic_timestep/dt) - 1
 
 startingDate = meteo_all[0]['date'][startTime] #* hydrodynamic_timestep/dt]
@@ -125,7 +125,7 @@ res = run_wq_model(
     resp_docl = 0.01/86400, # 0.01 0.05
     resp_poc = 0.06/86400, # 0.1 0.001 0.0001
     settling_rate = 0.1/86400, #0.3
-    sediment_rate = 0.3/86400,
+    sediment_rate = 0.1/86400,
     piston_velocity = 1.0/86400,
     light_water = 0.125,
     light_doc = 0.02,
@@ -157,6 +157,7 @@ docr_respiration = res['docr_respiration']
 docl_respiration = res['docl_respiration']
 poc_respiration = res['poc_respiration']
 kd = res['kd_light']
+secchi = res['secchi']
 thermo_dep = res['thermo_dep']
 energy_ratio = res['energy_ratio']
 
@@ -392,6 +393,10 @@ plt.show()
 
 plt.plot(times, kd[0,:])
 plt.ylabel("kd (/m)")
+plt.show()
+
+plt.plot(times, secchi[0,:])
+plt.ylabel("secchi depth (m)")
 plt.show()
 
 do_sat = o2[0,:] * 0.0

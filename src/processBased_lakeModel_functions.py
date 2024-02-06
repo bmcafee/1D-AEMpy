@@ -945,7 +945,7 @@ def heating_module(
 
 
     end_time = datetime.datetime.now()
-    print("heating: " + str(end_time - start_time))
+    #print("heating: " + str(end_time - start_time))
     
     dat = {'temp': u,
            'air_temp': Tair,
@@ -1041,7 +1041,7 @@ def diffusion_module(
       
 
     end_time = datetime.datetime.now()
-    print("diffusion: " + str(end_time - start_time))
+    #print("diffusion: " + str(end_time - start_time))
     
     dat = {'temp': u,
            'diffusivity': kz}
@@ -1106,7 +1106,7 @@ def mixing_module(
       
 
     end_time = datetime.datetime.now()
-    print("mixing: " + str(end_time - start_time))
+    #print("mixing: " + str(end_time - start_time))
     
     dat = {'temp': u,
            'shear': shear,
@@ -1475,7 +1475,7 @@ def mixing_module_minlake(
     energy_ratio = KE
     
     end_time = datetime.datetime.now()
-    print("mixing: " + str(end_time - start_time))
+    #print("mixing: " + str(end_time - start_time))
     
     dat = {'temp': u,
            'o2': o2,
@@ -1521,7 +1521,7 @@ def convection_module(
       
     
     end_time = datetime.datetime.now()
-    print("convection: " + str(end_time - start_time))
+    #print("convection: " + str(end_time - start_time))
     
     dat = {'temp': u}
     
@@ -1674,7 +1674,7 @@ def ice_module(
         Hsi = 0
     
     end_time = datetime.datetime.now()
-    print("ice: " + str(end_time - start_time))
+    #print("ice: " + str(end_time - start_time))
     dat = {'temp': u,
             'icethickness': Hi,
             'snowthickness': Hs,
@@ -1739,7 +1739,7 @@ def atmospheric_module(
         (piston_velocity * (do_sat_calc(u[0], 982.2, altitude = 258) - o2[0]/volume[0]) * area[0] ) * dt)
 
     end_time = datetime.datetime.now()
-    print("wq atm flux: " + str(end_time - start_time))
+    #print("wq atm flux: " + str(end_time - start_time))
     
     dat = {'o2': o2}
 
@@ -1860,7 +1860,7 @@ def boundary_module(
 
     #breakpoint()
     end_time = datetime.datetime.now()
-    print("wq boundary flux: " + str(end_time - start_time))
+    #print("wq boundary flux: " + str(end_time - start_time))
     
     dat = {'o2': o2,
            'docr': docr,
@@ -2003,7 +2003,7 @@ def prodcons_module(
     # pocl = pocln + dt * consumption * (pocln * resp_poc)
     
     end_time = datetime.datetime.now()
-    print("wq production and consumption: " + str(end_time - start_time))
+    #print("wq production and consumption: " + str(end_time - start_time))
     
     dat = {'o2': o2,
            'docr': docr,
@@ -2162,7 +2162,7 @@ def transport_module(
         pocl[(nx-1)]  = 0
 
     end_time = datetime.datetime.now()
-    print("wq transport: " + str(end_time - start_time))
+    #print("wq transport: " + str(end_time - start_time))
     
     dat = {'o2': o2,
            'docr': docr,
@@ -2232,7 +2232,8 @@ def run_wq_model(
   Cw = 4.18E6,
   L_ice = 333500,
   kd_snow = 0.9,
-  kd_ice = 0.7,p_max = 1.0/86400,
+  kd_ice = 0.7,
+  p_max = 1.0/86400,
   IP = 0.1,
   theta_npp = 1.08,
   theta_r = 1.08,
@@ -2816,6 +2817,7 @@ def run_wq_model(
                'docl_respiration': docl_respirationm,
                'poc_respiration': poc_respirationm,
                'kd_light': kd_lightm,
+               'secchi': 1.7/kd_lightm,
                'thermo_dep': thermo_depm,
                'energy_ratio': energy_ratiom}
   
