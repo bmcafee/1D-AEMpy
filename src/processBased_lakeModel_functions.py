@@ -2344,7 +2344,8 @@ def run_wq_model(
   times = np.arange(startTime * dt, endTime * dt, dt)
   for idn, n in enumerate(times):
     
-    print(idn)
+    if idn % 1000 == 0:
+        print(idn)
           
     un = deepcopy(u)
     un_initial = un
