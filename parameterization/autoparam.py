@@ -85,7 +85,7 @@ sed_sink = 0.01 #/ 86400 #0.001-0.1
 #resp_docr = 0.001 #/ 86400 # 0.005-0.0001
 resp_docl = 0.01 #/ 86400 # 0.01-0.1
 resp_poc = 0.06 #/ 86400 #0.05-0.5
-settling_rate = 0.1 #/ 86400 #0.1-1
+settling_rate = 0.2 #/ 86400 #0.1-1
 sediment_rate = 0.1 #/ 86400 #0.1-1
 #piston_velocity = 1.0 #/ 86400 #not used
 #light_water = 0.125 #keep constant
@@ -105,9 +105,9 @@ else:
     IP_col.insert(0, IP)
     theta_npp_col = [random.uniform(1.04, 1.20) for _ in range(n_runs-1)]
     theta_npp_col.insert(0, theta_npp)
-    theta_r_col = [random.uniform(1.04, 1.20) for _ in range(n_runs-1)]
+    theta_r_col = [random.uniform(1.04, 1.5) for _ in range(n_runs-1)]
     theta_r_col.insert(0, theta_r)
-    sed_sink_col = [random.uniform(-1, 1) for _ in range(n_runs-1)]
+    sed_sink_col = [random.uniform(-0.7, 0.01) for _ in range(n_runs-1)]
     sed_sink_col.insert(0, sed_sink)
     resp_docl_col = [random.uniform(0.001, 0.01) for _ in range(n_runs-1)]
     resp_docl_col.insert(0, resp_docl)
@@ -138,8 +138,22 @@ else:
 # model run
 
 while len(next(os.walk('D:\\bensd\\Documents\\Python_Workspace\\1D-AEMpy\\parameterization\\output'))[1]) <= 100:
+    looptimestart = datetime.datetime.now()
     i = len(next(os.walk('D:\\bensd\\Documents\\Python_Workspace\\1D-AEMpy\\parameterization\\output'))[1])
     print("Commencing Run " + str(i+1))
+    
+    p_max = 1 #/86400 #0.5 - 5
+    IP = 3e-5 #/86400 #0.1, 3e-5 #1e-5, 6e-5
+    theta_npp = 1.08 #1.08 #1.04-1.2
+    theta_r = 1.08 #1.08 #see theta npp
+    #k_half = 0.5 #0.1-0.5
+    #resp_docr = 0.001 #/ 86400 # 0.005-0.0001
+    resp_docl = 0.01 #/ 86400 # 0.01-0.1
+    sediment_rate = 0.1 #/ 86400 #0.1-1
+    #piston_velocity = 1.0 #/ 86400 #not used
+    #light_water = 0.125 #keep constant
+    #light_doc = 0.02 #.01-.04 #maybe manually fit
+    light_poc = 0.7 #.2-1
     
     params = pd.read_csv("../parameterization/results.csv")
         
@@ -147,21 +161,21 @@ while len(next(os.walk('D:\\bensd\\Documents\\Python_Workspace\\1D-AEMpy\\parame
     # wind_factor = params[i, "wind_factor"]
     # at_factor = params[i, "at_factor"]
     # turb_factor = params[i, "turb_factor"]
-    p_max = params.iloc[i, params.columns.get_loc("p_max")]
-    IP = params.iloc[i, params.columns.get_loc("IP")]
-    theta_npp = params.iloc[i, params.columns.get_loc("theta_npp")]
-    theta_r = params.iloc[i, params.columns.get_loc("theta_r")]
+    ## p_max = params.iloc[i, params.columns.get_loc("p_max")]
+    ## IP = params.iloc[i, params.columns.get_loc("IP")]
+    ## theta_npp = params.iloc[i, params.columns.get_loc("theta_npp")]
+    ## theta_r = params.iloc[i, params.columns.get_loc("theta_r")]
     sed_sink = params.iloc[i, params.columns.get_loc("sed_sink")]
     # k_half = params[i, "k_half"]
     # resp_docr = params[i, "resp_docr"]
-    resp_docl = params.iloc[i, params.columns.get_loc("resp_docl")]
+    ## resp_docl = params.iloc[i, params.columns.get_loc("resp_docl")]
     resp_poc = params.iloc[i, params.columns.get_loc("resp_poc")]
     settling_rate = params.iloc[i, params.columns.get_loc("settling_rate")]
-    sediment_rate = params.iloc[i, params.columns.get_loc("sediment_rate")]
+    ## sediment_rate = params.iloc[i, params.columns.get_loc("sediment_rate")]
     # piston_velocity = params[i, "piston_velocity"]
     # light_water = params[i, "light_water"]
     # light_doc = params[i, "light_doc"]
-    light_poc = params.iloc[i, params.columns.get_loc("light_poc")]
+    ## light_poc = params.iloc[i, params.columns.get_loc("light_poc")]
     
     del params
     
@@ -230,7 +244,7 @@ while len(next(os.walk('D:\\bensd\\Documents\\Python_Workspace\\1D-AEMpy\\parame
         sediment_rate = sediment_rate/86400,
         piston_velocity = 1/86400,
         light_water = 0.125,
-        light_doc = 0.2,
+        light_doc = 0.02,
         light_poc = light_poc,
         mean_depth = sum(volume)/max(area),
         W_str = None)
@@ -276,8 +290,14 @@ while len(next(os.walk('D:\\bensd\\Documents\\Python_Workspace\\1D-AEMpy\\parame
     del p_max, IP, theta_npp, theta_r, sed_sink, resp_docl, resp_poc, settling_rate, sediment_rate, light_poc, temp, o2, docr, docl, doc_all, pocr, pocl, poc_all, secchi
     
     print("Run " + str(i+1) + " finished at " + str(datetime.datetime.now()))
+    looptimeend = datetime.datetime.now()
     
-    del i
+    looplengthdiff = looptimeend - looptimestart
+    # if looplengthdiff.seconds/60/60 >= 1:
+    #     sys.stdout.flush()
+    #     os._exit(00)
+    
+    del i, looplengthdiff, looptimeend, looptimestart
     gc.collect()
         
 

@@ -425,6 +425,8 @@ def wq_initial_profile(initfile, nx, dx, depth, volume, startDate):
   doc = profile_fun(out_depths)
   
   u = np.vstack((do * volume, doc * volume))
+  
+  # print(u)
   # TODO implement warning about profile vs. met start date
   
   return(u)
