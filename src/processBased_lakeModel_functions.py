@@ -2908,6 +2908,28 @@ def run_wq_model(
       secchim = np.transpose(1.7/kd_lightm)
       pd.DataFrame(secchim).to_csv(training_data_path+"/secchi_final06.csv", index = False)
       
+      nppm = np.transpose(nppm)
+      docr_respirationm = np.transpose(docr_respirationm)
+      docl_respirationm = np.transpose(docl_respirationm)
+      poc_respirationm = np.transpose(poc_respirationm)
+      pd.DataFrame(nppm).to_csv(training_data_path+"/npp_bc02.csv", index = False)
+      pd.DataFrame(docr_respirationm).to_csv(training_data_path+"/docr_resp_pd03.csv", index = False)
+      pd.DataFrame(docl_respirationm).to_csv(training_data_path+"/docl_resp_pd03.csv", index = False)
+      pd.DataFrame(poc_respirationm).to_csv(training_data_path+"/poc_resp_pd03.csv", index = False)
+      
+      pd.DataFrame(area).to_csv(training_data_path+"/area_input.csv", index = False)
+      pd.DataFrame(volume).to_csv(training_data_path+"/volume_input.csv", index = False)
+      pd.DataFrame(depth).to_csv(training_data_path+"/depth_input.csv", index = False)
+      pd.DataFrame(depth).to_csv(training_data_path+"/depth_input.csv", index = False)
+      
+      pd.DataFrame(phosphorus_data).to_csv(training_data_path+"/tp_input.csv", index = False)
+      
+      #thermo_depm = np.transpose(thermo_depm)
+      kzm = np.transpose(kzm)
+      #pd.DataFrame(thermo_depm).to_csv(training_data_path+"/thermo_depth_final06.csv", index = False)
+      pd.DataFrame(kzm).to_csv(training_data_path+"/kz_initial00.csv", index = False)
+      
+      
       filenames = next(os.walk(training_data_path), (None, None, []))[2]
       for name in filenames:
           if "0" in name:
