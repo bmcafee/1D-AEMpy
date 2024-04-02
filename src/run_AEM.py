@@ -11,7 +11,8 @@ from numba import jit
 
 #os.chdir("/home/robert/Projects/1D-AEMpy/src")
 #os.chdir("C:/Users/ladwi/Documents/Projects/R/1D-AEMpy/src")
-os.chdir("D:/bensd/Documents/Python_Workspace/1D-AEMpy/src")
+#os.chdir("D:/bensd/Documents/Python_Workspace/1D-AEMpy/src")
+os.chdir("C:/Users/benne/Documents/Python_Workspace/1D-AEMpy/src")
 from processBased_lakeModel_functions import get_hypsography, provide_meteorology, initial_profile, run_wq_model, wq_initial_profile, provide_phosphorus, do_sat_calc, calc_dens #, heating_module, diffusion_module, mixing_module, convection_module, ice_module
 
 
@@ -29,9 +30,11 @@ area, depth, volume = get_hypsography(hypsofile = '../input/bathymetry.csv',
 meteo_all = provide_meteorology(meteofile = '../input/Mendota_2016_2024_for_1DAEMpy.csv',
                     secchifile = None, 
                     windfactor = 1.0)
+
+pd.DataFrame(meteo_all[0]).to_csv("../output/meteorology_input.csv", index = False)
                      
 ## time step discretization 
-n_years = 3
+n_years = 5
 hydrodynamic_timestep = 24 * dt
 total_runtime =  (365 * n_years) * hydrodynamic_timestep/dt  
 startTime =   (138) * hydrodynamic_timestep/dt # DOY in 2016 * 24 hours
@@ -123,7 +126,7 @@ res = run_wq_model(
     k_half = 0.5,
     resp_docr = 0.001/86400, # 0.001 0.0001
     resp_docl = 0.01/86400, # 0.01 0.05
-    resp_poc = 0.1/86400, # 0.1 0.001 0.0001
+    resp_poc = 0.12/86400, # 0.1 0.001 0.0001
     settling_rate = 0.3/86400, #0.3
     sediment_rate = 0.1/86400,
     piston_velocity = 1.0/86400,
@@ -131,7 +134,9 @@ res = run_wq_model(
     light_doc = 0.02,
     light_poc = 0.7,
     mean_depth = sum(volume)/max(area),
-    W_str = None)
+    W_str = None,
+    training_data_path = '../output',
+    timelabels = times)
 
 temp=  res['temp']
 o2=  res['o2']
@@ -427,12 +432,14 @@ plt.show()
 # pd.DataFrame(pocl).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_pocl.csv")
 # pd.DataFrame(pocr).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_pocr.csv")
 # pd.DataFrame(secchi).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_secchi.csv")
-label = 116
-doc_all = np.add(docl, docr)
-poc_all = np.add(pocl, pocr)
-os.mkdir("../parameterization/output/Run_"+str(label))
-pd.DataFrame(temp).to_csv("../parameterization/output/Run_"+str(label)+"/temp.csv", index = False)
-pd.DataFrame(o2).to_csv("../parameterization/output/Run_"+str(label)+"/do.csv", index = False)
-pd.DataFrame(doc_all).to_csv("../parameterization/output/Run_"+str(label)+"/doc.csv", index = False)
-pd.DataFrame(poc_all).to_csv("../parameterization/output/Run_"+str(label)+"/poc.csv", index = False)
-pd.DataFrame(secchi).to_csv("../parameterization/output/Run_"+str(label)+"/secchi.csv", index = False)
+
+
+# label = 116
+# doc_all = np.add(docl, docr)
+# poc_all = np.add(pocl, pocr)
+# os.mkdir("../parameterization/output/Run_"+str(label))
+# pd.DataFrame(temp).to_csv("../parameterization/output/Run_"+str(label)+"/temp.csv", index = False)
+# pd.DataFrame(o2).to_csv("../parameterization/output/Run_"+str(label)+"/do.csv", index = False)
+# pd.DataFrame(doc_all).to_csv("../parameterization/output/Run_"+str(label)+"/doc.csv", index = False)
+# pd.DataFrame(poc_all).to_csv("../parameterization/output/Run_"+str(label)+"/poc.csv", index = False)
+# pd.DataFrame(secchi).to_csv("../parameterization/output/Run_"+str(label)+"/secchi.csv", index = False)

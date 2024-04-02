@@ -2251,7 +2251,9 @@ def run_wq_model(
   light_water = 0.125,
   light_doc = 0.02,
   light_poc = 0.7,
-  W_str = None):
+  W_str = None,
+  training_data_path = None,
+  timelabels = None):
     
   ## linearization of driver data, so model can have dynamic step
   Jsw_fillvals = tuple(daily_meteo.Shortwave_Radiation_Downwelling_wattPerMeterSquared.values[[0, -1]])
@@ -2290,6 +2292,7 @@ def run_wq_model(
   Hsim= np.full([1,nCol], np.nan)
   thermo_depm = np.full([1,nCol], np.nan)
   energy_ratiom = np.full([1,nCol], np.nan)
+  icem = np.full([1,nCol], np.nan)
   
 
   um_initial = np.full([nx, nCol], np.nan)
@@ -2302,6 +2305,7 @@ def run_wq_model(
   meteo_pgdl = np.full([28, nCol], np.nan)
   
   o2_initial = np.full([nx, nCol], np.nan)
+  o2_ax = np.full([nx, nCol], np.nan)
   o2_bc = np.full([nx, nCol], np.nan)
   o2_pd = np.full([nx, nCol], np.nan)
   o2_diff = np.full([nx, nCol], np.nan)
@@ -2442,6 +2446,7 @@ def run_wq_model(
     plt.plot(u, color = 'blue')
     
     um_ice[:, idn] = u
+    icem[:, idn] = ice
     
 
     
@@ -2498,7 +2503,7 @@ def run_wq_model(
         wind_factor = wind_factor)
     o2 = atmospheric_res['o2']
 
-    o2_bc[:, idn] = o2
+    o2_ax[:, idn] = o2
     
     ## (WQ1) BOUNDARY ADDITION
     boundary_res = boundary_module(
@@ -2651,8 +2656,8 @@ def run_wq_model(
     # print(o2_diff[:, idn]/volume)
     # breakpoint()
     # (3) MIXING
-    if (idn == 3943):
-        print('')
+    # if (idn == 3943):
+        #print('')
         #breakpoint()
     
     #breakpoint()
@@ -2823,6 +2828,101 @@ def run_wq_model(
                'secchi': 1.7/kd_lightm,
                'thermo_dep': thermo_depm,
                'energy_ratio': energy_ratiom}
+    
+  if training_data_path is not None:
+      um_initial = np.transpose(um_initial)
+      um_diff = np.transpose(um_diff)
+      um_conv = np.transpose(um_conv)
+      um = np.transpose(um)
+      pd.DataFrame(um_initial).to_csv(training_data_path+"/temp_initial00.csv", index = False)
+      pd.DataFrame(um_diff).to_csv(training_data_path+"/temp_diff04.csv", index = False)
+      pd.DataFrame(um_conv).to_csv(training_data_path+"/temp_conv05.csv", index = False)
+      pd.DataFrame(um).to_csv(training_data_path+"/temp_final06.csv", index = False)
+      
+      icem = np.transpose(icem)
+      pd.DataFrame(icem).to_csv(training_data_path+"/ice_final06.csv", index = False)
+      
+      o2_initial = np.transpose(o2_initial)
+      o2_ax = np.transpose(o2_ax)
+      o2_bc = np.transpose(o2_bc)
+      o2_pd = np.transpose(o2_pd)
+      o2_diff = np.transpose(o2_diff)
+      o2m = np.transpose(o2m)
+      pd.DataFrame(o2_initial).to_csv(training_data_path+"/do_initial00.csv", index = False)
+      pd.DataFrame(o2_ax).to_csv(training_data_path+"/do_ax01.csv", index = False)
+      pd.DataFrame(o2_bc).to_csv(training_data_path+"/do_bc02.csv", index = False)
+      pd.DataFrame(o2_pd).to_csv(training_data_path+"/do_pd03.csv", index = False)
+      pd.DataFrame(o2_diff).to_csv(training_data_path+"/do_diff04.csv", index = False)
+      pd.DataFrame(o2m).to_csv(training_data_path+"/do_conv05.csv", index = False)
+      
+      docl_initial = np.transpose(docl_initial)
+      docl_bc = np.transpose(docl_bc)
+      docl_pd = np.transpose(docl_pd)
+      docl_diff = np.transpose(docl_diff)
+      doclm = np.transpose(doclm)
+      pd.DataFrame(docl_initial).to_csv(training_data_path+"/docl_initial00.csv", index = False)
+      pd.DataFrame(docl_bc).to_csv(training_data_path+"/docl_bc02.csv", index = False)
+      pd.DataFrame(docl_pd).to_csv(training_data_path+"/docl_pd03.csv", index = False)
+      pd.DataFrame(docl_diff).to_csv(training_data_path+"/docl_diff04.csv", index = False)
+      pd.DataFrame(doclm).to_csv(training_data_path+"/docl_conv05.csv", index = False)
+      
+      docr_initial = np.transpose(docr_initial)
+      docr_bc = np.transpose(docr_bc)
+      docr_pd = np.transpose(docr_pd)
+      docr_diff = np.transpose(docr_diff)
+      docrm = np.transpose(docrm)
+      pd.DataFrame(docr_initial).to_csv(training_data_path+"/docr_initial00.csv", index = False)
+      pd.DataFrame(docr_bc).to_csv(training_data_path+"/docr_bc02.csv", index = False)
+      pd.DataFrame(docr_pd).to_csv(training_data_path+"/docr_pd03.csv", index = False)
+      pd.DataFrame(docr_diff).to_csv(training_data_path+"/docr_diff04.csv", index = False)
+      pd.DataFrame(docrm).to_csv(training_data_path+"/docr_conv05.csv", index = False)
+      
+      pocl_initial = np.transpose(pocl_initial)
+      pocl_bc = np.transpose(pocl_bc)
+      pocl_pd = np.transpose(pocl_pd)
+      pocl_diff = np.transpose(pocl_diff)
+      poclm = np.transpose(poclm)
+      pd.DataFrame(pocl_initial).to_csv(training_data_path+"/pocl_initial00.csv", index = False)
+      pd.DataFrame(pocl_bc).to_csv(training_data_path+"/pocl_bc02.csv", index = False)
+      pd.DataFrame(pocl_pd).to_csv(training_data_path+"/pocl_pd03.csv", index = False)
+      pd.DataFrame(pocl_diff).to_csv(training_data_path+"/pocl_diff04.csv", index = False)
+      pd.DataFrame(poclm).to_csv(training_data_path+"/pocl_conv05.csv", index = False)
+      
+      pocr_initial = np.transpose(pocr_initial)
+      pocr_bc = np.transpose(pocr_bc)
+      pocr_pd = np.transpose(pocr_pd)
+      pocr_diff = np.transpose(pocr_diff)
+      pocrm = np.transpose(pocrm)
+      pd.DataFrame(pocr_initial).to_csv(training_data_path+"/pocr_initial00.csv", index = False)
+      pd.DataFrame(pocr_bc).to_csv(training_data_path+"/pocr_bc02.csv", index = False)
+      pd.DataFrame(pocr_pd).to_csv(training_data_path+"/pocr_pd03.csv", index = False)
+      pd.DataFrame(pocr_diff).to_csv(training_data_path+"/pocr_diff04.csv", index = False)
+      pd.DataFrame(pocrm).to_csv(training_data_path+"/pocr_conv05.csv", index = False)
+      
+      pd.DataFrame(o2m / np.transpose(volume)).to_csv(training_data_path+"/do_final06.csv", index = False)
+      doc_final = np.add(doclm, docrm) / np.transpose(volume)
+      poc_final = np.add(poclm, pocrm) / np.transpose(volume)
+      pd.DataFrame(doc_final).to_csv(training_data_path+"/doc_final06.csv", index = False)
+      pd.DataFrame(poc_final).to_csv(training_data_path+"/poc_final06.csv", index = False)
+      
+      secchim = np.transpose(1.7/kd_lightm)
+      pd.DataFrame(secchim).to_csv(training_data_path+"/secchi_final06.csv", index = False)
+      
+      filenames = next(os.walk(training_data_path), (None, None, []))[2]
+      for name in filenames:
+          if "0" in name:
+              print("editing " + name)
+              fullname = training_data_path+'/'+name
+              df = pd.read_csv(fullname)
+              if "final" in name:
+                  new_columns = {col: ((float(col)+1)/2)-0.5 for col in df.columns}
+                  df.rename(columns=new_columns, inplace=True)
+              df.index = timelabels
+              df.index.names = ["datetime"]
+              os.remove(fullname)
+              df.to_csv(fullname)
+              
+      
   
   return(dat)
 
