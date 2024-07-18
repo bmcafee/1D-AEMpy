@@ -122,12 +122,12 @@ res = run_wq_model(
     theta_npp = 1.08, #1.08
     theta_r = 1.08, #1.08 #1.5 for 104 #1.35 for 106
     conversion_constant = 1e-4,#0.1
-    sed_sink = -0.12/ 86400, #0.01 #-.12 
+    sed_sink = -0.0626/ 86400, #0.01 #-.12 
     k_half = 0.5,
     resp_docr = 0.001/86400, # 0.001 0.0001
     resp_docl = 0.01/86400, # 0.01 0.05
-    resp_poc = 0.12/86400, # 0.1 0.001 0.0001
-    settling_rate = 0.3/86400, #0.3
+    resp_poc = 0.15/86400, # 0.1 0.001 0.0001
+    settling_rate = 0.7/86400, #0.3
     sediment_rate = 0.1/86400,
     piston_velocity = 1.0/86400,
     light_water = 0.125,
@@ -424,6 +424,14 @@ plt.show()
 # phosphorus bc
 # ice npp
 # wind mixingS
+
+pd.DataFrame(temp).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_temp.csv")
+pd.DataFrame(o2).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_do.csv")
+pd.DataFrame(docr).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_docr.csv")
+pd.DataFrame(docl).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_docl.csv")
+pd.DataFrame(pocl).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_pocl.csv")
+pd.DataFrame(pocr).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_pocr.csv")
+pd.DataFrame(secchi).to_csv("C:/Users/benne/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_secchi.csv")
 
 # pd.DataFrame(temp).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_temp.csv")
 # pd.DataFrame(o2).to_csv("D:/bensd/Documents/RStudio Workspace/1D-AEM-py/model_output/modeled_do.csv")

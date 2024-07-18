@@ -1,0 +1,81 @@
+---
+title: "ML training set gathering"
+output: html_document
+date: "2024-05-26"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readr)
+
+reference_output <- read_csv("reference_do_not_use/all_data_lake_modeling_in_time.csv")
+
+meteorology_input <- read_csv("~/Python_Workspace/1D-AEMpy/output/meteorology_input.csv")
+volume_input <- read_csv("~/Python_Workspace/1D-AEMpy/output/volume_input.csv")
+depth_input <- read_csv("~/Python_Workspace/1D-AEMpy/output/depth_input.csv")
+do_final06 <- read_csv("~/Python_Workspace/1D-AEMpy/output/do_final06.csv")
+doc_final06 <- read_csv("~/Python_Workspace/1D-AEMpy/output/doc_final06.csv")
+ice_final06 <- read_csv("~/Python_Workspace/1D-AEMpy/output/ice_final06.csv")
+poc_final06 <- read_csv("~/Python_Workspace/1D-AEMpy/output/poc_final06.csv")
+temp_final06 <- read_csv("~/Python_Workspace/1D-AEMpy/output/temp_final06.csv")
+
+```
+
+```{r}
+obs_data <- read_csv("~/RStudio Workspace/1D-AEM-py/all_data_long.csv") %>% filter(variable %in% c("temp", "do", "doc", "poc"))
+
+obs_data$depth <- plyr::round_any(obs_data$depth, 0.5) + 0.25
+
+obs_data <- obs_data %>% pivot_wider(id_cols = c("datetime", "depth"), names_from = "variable", values_from = "observation", values_fn = mean)
+
+obs_data <- obs_data %>% 
+  mutate(datetime_hr = round.POSIXt(datetime, units = "hours")) %>%
+  group_by(datetime_hr, depth) %>%
+  summarize(temp_obs = mean(temp, na.rm = TRUE),
+            do_obs = mean(do, na.rm = TRUE),
+            doc_obs = mean(doc, na.rm = TRUE),
+            poc_obs = mean(poc, na.rm = TRUE))
+names(obs_data)[names(obs_data) == 'datetime_hr'] <- 'datetime'
+
+gc()
+
+obs_secchi <- read_csv("~/RStudio Workspace/1D-AEM-py/all_data_long.csv") %>% filter(variable == "secchi") %>% select(datetime, observation)
+colnames(obs_secchi) <- c("datetime", "secchi_obs")
+obs_secchi$datetime <- round.POSIXt(obs_secchi$datetime, units = "hours")
+
+obs_data <- merge(obs_data, obs_secchi, by = "datetime", all = TRUE)
+
+obs_data$datetime <- as.character(obs_data$datetime)
+obs_data[obs_data=="NaN"]<-NA
+
+```
+
+```{r}
+time_df <- merge(meteorology_input, ice_final06, by = "datetime") #filters meteo to only timesteps of simulation
+names(time_df)[names(time_df) == '0.0'] <- 'ice'
+static_df <- data.frame(depth = depth_input$`0`,
+                        volume = volume_input$`0`)
+colnames(do_final06) <- c("datetime", static_df$depth)
+colnames(doc_final06) <- c("datetime", static_df$depth)
+colnames(poc_final06) <- c("datetime", static_df$depth)
+colnames(temp_final06) <- c("datetime", static_df$depth)
+do_final06_long <- do_final06 %>% pivot_longer(cols = -datetime, names_to = "depth")
+doc_final06_long <- doc_final06 %>% pivot_longer(cols = -datetime, names_to = "depth")
+poc_final06_long <- poc_final06 %>% pivot_longer(cols = -datetime, names_to = "depth")
+temp_final06_long <- temp_final06 %>% pivot_longer(cols = -datetime, names_to = "depth")
+
+profiles_df <- merge(do_final06_long, doc_final06_long, by = c("datetime", "depth"), all = TRUE)
+names(profiles_df)[names(profiles_df) == 'value.x'] <- 'do'
+names(profiles_df)[names(profiles_df) == 'value.y'] <- 'doc'
+profiles_df <- merge(profiles_df, poc_final06_long, by = c("datetime", "depth"), all = TRUE)
+names(profiles_df)[names(profiles_df) == 'value'] <- 'poc'
+profiles_df <- merge(profiles_df, temp_final06_long, by = c("datetime", "depth"), all = TRUE)
+names(profiles_df)[names(profiles_df) == 'value'] <- 'temp'
+
+output_df <- merge(profiles_df, static_df, by = "depth", all = TRUE)
+output_df <- merge(output_df, time_df, by = "datetime", all = TRUE) %>% select(-date)
+output_df <- merge(output_df, obs_data, by = c("datetime", "depth"), all.x = TRUE)
+
+write.csv(output_df, "all_model_data_in_time.csv", row.names = FALSE)
+
+```

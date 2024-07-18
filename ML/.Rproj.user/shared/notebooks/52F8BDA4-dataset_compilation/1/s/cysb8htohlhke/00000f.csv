@@ -1,0 +1,75 @@
+"0","obs_data <- read_csv(""~/RStudio Workspace/1D-AEM-py/all_data_long.csv"") %>% filter(variable %in% c(""temp"", ""do"", ""doc"", ""poc""))"
+"1","[1mRows: [22m[34m50465253[39m [1mColumns: [22m[34m4[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (1): variable
+[32mdbl[39m  (2): depth, observation
+[34mdttm[39m (1): datetime
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"
+"0","obs_data$depth <- plyr::round_any(obs_data$depth, 0.5) + 0.25"
+"0",""
+"0","obs_data <- obs_data %>% pivot_wider(id_cols = c(""datetime"", ""depth""), names_from = ""variable"", values_from = ""observation"", values_fn = mean)"
+"0",""
+"0","obs_data <- obs_data %>% "
+"0","  mutate(datetime_hr = round.POSIXt(datetime, units = ""hours"")) %>%"
+"0","  group_by(datetime_hr, depth) %>%"
+"0","  summarize(temp_obs = mean(temp, na.rm = TRUE),"
+"0","            do_obs = mean(do, na.rm = TRUE),"
+"0","            doc_obs = mean(doc, na.rm = TRUE),"
+"0","            poc_obs = mean(poc, na.rm = TRUE))"
+"1","[38;5;232m`summarise()` has grouped output by 'datetime_hr'. You can override using the `.groups` argument.[39m
+"
+"0","names(obs_data)[names(obs_data) == 'datetime_hr'] <- 'datetime'"
+"0",""
+"0","gc()"
+"1","      "
+"1","      used"
+"1","   (Mb)"
+"1"," gc trigger"
+"1","   (Mb)"
+"1","   max used"
+"1","    (Mb)"
+"1","
+Ncells"
+"1","   1267031"
+"1","   67.7"
+"1","   85498622"
+"1"," 4566.2"
+"1","  208736868"
+"1"," 11147.8"
+"1","
+Vcells"
+"1"," 143701112"
+"1"," 1096.4"
+"1"," 1057006049"
+"1"," 8064.4"
+"1"," 1321257561"
+"1"," 10080.4"
+"1","
+"
+"0","obs_secchi <- read_csv(""~/RStudio Workspace/1D-AEM-py/all_data_long.csv"") %>% filter(variable == ""secchi"") %>% select(datetime, observation)"
+"1","[1mRows: [22m[34m50465253[39m [1mColumns: [22m[34m4[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (1): variable
+[32mdbl[39m  (2): depth, observation
+[34mdttm[39m (1): datetime
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"
+"0","colnames(obs_secchi) <- c(""datetime"", ""secchi_obs"")"
+"0","obs_secchi$datetime <- round.POSIXt(obs_secchi$datetime, units = ""hours"")"
+"0",""
+"0","obs_data <- merge(obs_data, obs_secchi, by = ""datetime"", all = TRUE)"
+"0",""
+"0","obs_data$datetime <- as.character(obs_data$datetime)"
+"0","obs_data[obs_data==""NaN""]<-NA"
+"0",""

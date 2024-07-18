@@ -1,0 +1,4 @@
+"0","output_df <- merge(output_df, obs_data, by = c(""datetime"", ""depth""), all.x = TRUE)
+"
+"2","Error in fix.by(by.x, x) : 'by' must specify a uniquely valid column
+"
