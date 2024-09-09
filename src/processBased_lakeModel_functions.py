@@ -2251,6 +2251,12 @@ def run_wq_model(
   light_water = 0.125,
   light_doc = 0.02,
   light_poc = 0.7,
+  oc_load_input = 0, # g C per m3 per hour
+  oc_load_outflow = 0, # g C per m3 per hour
+  prop_oc_docr = 0.8,
+  prop_oc_docl = 0.05,
+  prop_oc_pocr = 0.05,
+  prop_oc_pocl = 0.1,
   W_str = None,
   training_data_path = None,
   timelabels = None):
@@ -2343,13 +2349,21 @@ def run_wq_model(
   if not kd_light is None:
     def kd(n): # using this shortcut for now / testing if it works
       return kd_light
-
+  
+    
+  # Calculating per-depth OC load
+  perdepth_oc = oc_load_input / nx
+  perdepth_docr = perdepth_oc * prop_oc_docr
+  perdepth_docl = perdepth_oc * prop_oc_docl
+  perdepth_pocr = perdepth_oc * prop_oc_pocl
+  perdepth_pocl = perdepth_oc * prop_oc_pocl
   
   #breakpoint()
   #times = np.arange(startTime, endTime, dt)
   times = np.arange(startTime * dt, endTime * dt, dt)
   for idn, n in enumerate(times):
     
+    #print(idn)
     if idn % 1000 == 0:
         print(idn)
           
@@ -2374,6 +2388,11 @@ def run_wq_model(
     pocr_initial[:, idn] = pocr
     pocl_initial[:, idn] = pocl
     
+    ## OC loading
+    docr = [x+perdepth_docr for x in docr]
+    docl = [x+perdepth_docl for x in docl]
+    pocr = [x+perdepth_pocr for x in pocr]
+    pocl = [x+perdepth_pocl for x in pocl]
 
     ## (1) HEATING
     heating_res = heating_module(
@@ -2706,6 +2725,26 @@ def run_wq_model(
     
     plt.plot(u, color = 'black')
     #plt.show()
+    
+    
+    ## OC Outflow
+    # Calculating per-depth OC load
+    perdepth_oc_out = oc_load_outflow / nx
+    perdepth_docr_out = perdepth_oc_out * prop_oc_docr
+    perdepth_docl_out = perdepth_oc_out * prop_oc_docl
+    perdepth_pocr_out = perdepth_oc_out * prop_oc_pocr
+    perdepth_pocl_out = perdepth_oc_out * prop_oc_pocl
+    
+    #print(type(pocl))
+    
+    docr -= perdepth_docr_out
+    docl -= perdepth_docl_out
+    pocr -= perdepth_pocr_out
+    pocl -= perdepth_pocl_out
+    
+    #print(type(pocl))
+    
+    ## End OC outflow
     
     um_conv[:, idn] = u
     

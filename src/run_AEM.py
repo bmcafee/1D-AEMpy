@@ -52,7 +52,7 @@ u_ini = initial_profile(initfile = '../input/observedTemp.txt', nx = nx, dx = dx
                      depth = depth,
                      startDate = startingDate)
 
-wq_ini = wq_initial_profile(initfile = '../input/mendota_driver_data_v2.csv', nx = nx, dx = dx,
+wq_ini = wq_initial_profile(initfile = '../input/mendota_driver_data_v3.csv', nx = nx, dx = dx,
                      depth = depth, 
                      volume = volume,
                      startDate = startingDate)
@@ -124,8 +124,8 @@ res = run_wq_model(
     conversion_constant = 1e-4,#0.1
     sed_sink = -0.0626/ 86400, #0.01 #-.12 
     k_half = 0.5,
-    resp_docr = 0.001/86400, # 0.001 0.0001
-    resp_docl = 0.01/86400, # 0.01 0.05
+    resp_docr = 0.005/86400, # 0.001 0.0001
+    resp_docl = 0.05/86400, # 0.01 0.05
     resp_poc = 0.15/86400, # 0.1 0.001 0.0001
     settling_rate = 0.7/86400, #0.3
     sediment_rate = 0.1/86400,
@@ -133,6 +133,12 @@ res = run_wq_model(
     light_water = 0.125,
     light_doc = 0.02,
     light_poc = 0.7,
+    oc_load_input = 38  * max(area) / 8760, # gC/m2/yr (Hanson et al. 2023) divided by 8760 hr/yr
+    oc_load_outflow = 38  * max(area) / 8760,
+    prop_oc_docr = 0.8, #0.8
+    prop_oc_docl = 0.05, #0.05
+    prop_oc_pocr = 0.05, #0.05
+    prop_oc_pocl = 0.1, #0.1
     mean_depth = sum(volume)/max(area),
     W_str = None,
     training_data_path = '../output',
