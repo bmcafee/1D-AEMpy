@@ -34,7 +34,7 @@ meteo_all = provide_meteorology(meteofile = '../input/Mendota_2016_2024_for_1DAE
 pd.DataFrame(meteo_all[0]).to_csv("../output/meteorology_input.csv", index = False)
                      
 ## time step discretization 
-n_years = 3
+n_years = 5
 hydrodynamic_timestep = 24 * dt
 total_runtime =  (365 * n_years) * hydrodynamic_timestep/dt  
 startTime =   (138) * hydrodynamic_timestep/dt # DOY in 2016 * 24 hours
@@ -133,7 +133,7 @@ res = run_wq_model(
     light_water = 0.125,
     light_doc = 0.02,
     light_poc = 0.7,
-    oc_load_input = 2  * max(area) / 8760, # 38 gC/m2/yr (Hanson et al. 2023) divided by 8760 hr/yr
+    oc_load_input = 38  * max(area) / 8760, # 38 gC/m2/yr (Hanson et al. 2023) divided by 8760 hr/yr
     hydro_res_time_hr = 4.3 * 8760,
     outflow_depth = 6.5,
     prop_oc_docr = 0.8, #0.8
@@ -142,7 +142,7 @@ res = run_wq_model(
     prop_oc_pocl = 0.1, #0.1
     mean_depth = sum(volume)/max(area),
     W_str = None,
-    training_data_path = None, #'../output'
+    training_data_path = '../output', #'../output'
     timelabels = times)
 
 temp=  res['temp']

@@ -2353,7 +2353,7 @@ def run_wq_model(
   
     
   # Calculating per-depth OC load
-  perdepth_oc = oc_load_input / nx
+  perdepth_oc = oc_load_input / int(outflow_depth * 2)
   perdepth_docr = perdepth_oc * prop_oc_docr
   perdepth_docl = perdepth_oc * prop_oc_docl
   perdepth_pocr = perdepth_oc * prop_oc_pocl
@@ -2390,10 +2390,16 @@ def run_wq_model(
     pocl_initial[:, idn] = pocl
     
     # OC loading
-    docr = [x+perdepth_docr for x in docr]
-    docl = [x+perdepth_docl for x in docl]
-    pocr = [x+perdepth_pocr for x in pocr]
-    pocl = [x+perdepth_pocl for x in pocl]
+    
+    for i in range(0, int(outflow_depth * 2)):
+        docr[i] += perdepth_docr
+        docl[i] += perdepth_docl
+        pocr[i] += perdepth_pocr
+        pocl[i] += perdepth_pocl
+    #docr = [x+perdepth_docr for x in docr]
+    #docl = [x+perdepth_docl for x in docl]
+    #pocr = [x+perdepth_pocr for x in pocr]
+    #pocl = [x+perdepth_pocl for x in pocl]
 
     ## (1) HEATING
     heating_res = heating_module(
