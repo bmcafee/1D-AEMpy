@@ -2252,7 +2252,8 @@ def run_wq_model(
   light_doc = 0.02,
   light_poc = 0.7,
   oc_load_input = 0, # g C per m3 per hour
-  oc_load_outflow = 0, # g C per m3 per hour
+  hydro_res_time_hr = 4.3 / 8760,
+  outflow_depth = 6.5,
   prop_oc_docr = 0.8,
   prop_oc_docl = 0.05,
   prop_oc_pocr = 0.05,
@@ -2388,7 +2389,7 @@ def run_wq_model(
     pocr_initial[:, idn] = pocr
     pocl_initial[:, idn] = pocl
     
-    ## OC loading
+    # OC loading
     docr = [x+perdepth_docr for x in docr]
     docl = [x+perdepth_docl for x in docl]
     pocr = [x+perdepth_pocr for x in pocr]
@@ -2729,18 +2730,14 @@ def run_wq_model(
     
     ## OC Outflow
     # Calculating per-depth OC load
-    perdepth_oc_out = oc_load_outflow / nx
-    perdepth_docr_out = perdepth_oc_out * prop_oc_docr
-    perdepth_docl_out = perdepth_oc_out * prop_oc_docl
-    perdepth_pocr_out = perdepth_oc_out * prop_oc_pocr
-    perdepth_pocl_out = perdepth_oc_out * prop_oc_pocl
+    outflow_layers = outflow_depth * 2
+    volume_out = ((1 / hydro_res_time_hr) * sum(volume)) / outflow_layers
     
-    #print(type(pocl))
-    
-    docr -= perdepth_docr_out
-    docl -= perdepth_docl_out
-    pocr -= perdepth_pocr_out
-    pocl -= perdepth_pocl_out
+    for i in range(0,int(outflow_layers)):
+        docr[i] -= docr[i] / volume[i] * volume_out
+        docl[i] -= docl[i] / volume[i] * volume_out
+        pocr[i] -= pocr[i] / volume[i] * volume_out
+        pocl[i] -= pocl[i] / volume[i] * volume_out
     
     #print(type(pocl))
     
@@ -2835,6 +2832,15 @@ def run_wq_model(
     else:
       df_z_df_sim.loc[j, 'stratFlag'] = 0
       
+  k600_calcm = [None]
+  for i in range(1, um.shape[1]):
+      k600 = k600_backcalc(flux = (o2m[0, i]/area[0]) - (o2m[0, i-1]/area[0]), 
+                           do = (o2m[0, i]/area[0]), 
+                           baro = None, 
+                           temp = um[0, i], 
+                           z = thermo_depm[0, i])
+      k600_calcm.append(k600)
+  
   dat = {'temp' : um,
                'diff' : kzm,
                'icethickness' : Him,
@@ -2866,7 +2872,8 @@ def run_wq_model(
                'kd_light': kd_lightm,
                'secchi': 1.7/kd_lightm,
                'thermo_dep': thermo_depm,
-               'energy_ratio': energy_ratiom}
+               'energy_ratio': energy_ratiom,
+               'k600_backcalc': k600_calcm}
     
   if training_data_path is not None:
       um_initial = np.transpose(um_initial)
@@ -3031,3 +3038,8 @@ def k600_to_kgas(k600, temperature, gas = "O2"):
     
     #print("k600:", k600, "kGas:", kgas)
     return(kgas)
+
+def k600_backcalc(flux, do, baro, temp, z):
+    do_sat = do_sat_calc(temp = temp, baro = baro)
+    k = flux / ((do - do_sat) / z)
+    return(k)
