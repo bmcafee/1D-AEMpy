@@ -2838,14 +2838,14 @@ def run_wq_model(
     else:
       df_z_df_sim.loc[j, 'stratFlag'] = 0
       
-  k600_calcm = [None]
+  ko2_calcm = [None]
   for i in range(1, um.shape[1]):
-      k600 = k600_backcalc(flux = (o2m[0, i]/area[0]) - (o2m[0, i-1]/area[0]), 
+      ko2 = ko2_backcalc(flux = (o2m[0, i]/area[0]) - (o2m[0, i-1]/area[0]), 
                            do = (o2m[0, i]/area[0]), 
                            baro = None, 
                            temp = um[0, i], 
                            z = thermo_depm[0, i])
-      k600_calcm.append(k600)
+      ko2_calcm.append(ko2)
   
   dat = {'temp' : um,
                'diff' : kzm,
@@ -2879,7 +2879,7 @@ def run_wq_model(
                'secchi': 1.7/kd_lightm,
                'thermo_dep': thermo_depm,
                'energy_ratio': energy_ratiom,
-               'k600_backcalc': k600_calcm}
+               'ko2_backcalc': ko2_calcm}
     
   if training_data_path is not None:
       um_initial = np.transpose(um_initial)
@@ -2969,6 +2969,8 @@ def run_wq_model(
       pd.DataFrame(docl_respirationm).to_csv(training_data_path+"/docl_resp_pd03.csv", index = False)
       pd.DataFrame(poc_respirationm).to_csv(training_data_path+"/poc_resp_pd03.csv", index = False)
       
+      pd.DataFrame(ko2_calcm).to_csv(training_data_path+"/ko2_final06.csv", index = False)
+      
       pd.DataFrame(area).to_csv(training_data_path+"/area_input.csv", index = False)
       pd.DataFrame(volume).to_csv(training_data_path+"/volume_input.csv", index = False)
       pd.DataFrame(depth).to_csv(training_data_path+"/depth_input.csv", index = False)
@@ -3045,7 +3047,7 @@ def k600_to_kgas(k600, temperature, gas = "O2"):
     #print("k600:", k600, "kGas:", kgas)
     return(kgas)
 
-def k600_backcalc(flux, do, baro, temp, z):
+def ko2_backcalc(flux, do, baro, temp, z):
     do_sat = do_sat_calc(temp = temp, baro = baro)
     k = flux / ((do - do_sat) / z)
     return(k)
