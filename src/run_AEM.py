@@ -57,7 +57,7 @@ wq_ini = wq_initial_profile(initfile = '../input/mendota_driver_data_v3.csv', nx
                      volume = volume,
                      startDate = startingDate)
 
-tp_boundary = provide_phosphorus(tpfile =  '../input/Mendota_observations_tp.csv', 
+tp_boundary = provide_phosphorus(tpfile =  '../input/Mendota_observations_tp_2.csv', 
                                  startingDate = startingDate,
                                  startTime = startTime)
 
