@@ -2300,7 +2300,7 @@ def run_wq_model(
   thermo_depm = np.full([1,nCol], np.nan)
   energy_ratiom = np.full([1,nCol], np.nan)
   icem = np.full([1,nCol], np.nan)
-  
+  TPm = np.full([1,nCol], np.nan)
 
   um_initial = np.full([nx, nCol], np.nan)
   um_heat = np.full([nx, nCol], np.nan)
@@ -2474,6 +2474,9 @@ def run_wq_model(
     um_ice[:, idn] = u
     icem[:, idn] = ice
     
+    TPm[:, idn] = TP(n)
+    
+    
 
     
     dens_u_n2 = calc_dens(u)
@@ -2587,6 +2590,7 @@ def run_wq_model(
     pocr_bc[:, idn] = pocr
     pocl_bc[:, idn] = pocl
     nppm[:, idn] = npp
+    
     
     ## (WQ2) PRODUCTION CONSUMPTION
     prodcons_res = prodcons_module(
@@ -2894,6 +2898,9 @@ def run_wq_model(
       icem = np.transpose(icem)
       pd.DataFrame(icem).to_csv(training_data_path+"/ice_final06.csv", index = False)
       
+      TPm2 = np.transpose(TPm)
+      pd.DataFrame(TPm2).to_csv(training_data_path+"/tp_initial.csv", index = False)
+      
       o2_initial = np.transpose(o2_initial)
       o2_ax = np.transpose(o2_ax)
       o2_bc = np.transpose(o2_bc)
@@ -2975,8 +2982,6 @@ def run_wq_model(
       pd.DataFrame(volume).to_csv(training_data_path+"/volume_input.csv", index = False)
       pd.DataFrame(depth).to_csv(training_data_path+"/depth_input.csv", index = False)
       pd.DataFrame(depth).to_csv(training_data_path+"/depth_input.csv", index = False)
-      
-      pd.DataFrame(phosphorus_data).to_csv(training_data_path+"/tp_input.csv", index = False)
       
       #thermo_depm = np.transpose(thermo_depm)
       kzm = np.transpose(kzm)
