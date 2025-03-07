@@ -21,6 +21,7 @@ warnings.filterwarnings("ignore")
 from numba import jit
 from scipy.linalg import solve_banded
 from scipy.stats.stats import pearsonr
+from scipy import stats
 
 
 ## function to calculate density from temperature
@@ -2961,8 +2962,10 @@ def run_wq_model(
       pd.DataFrame(o2m / np.transpose(volume)).to_csv(training_data_path+"/do_final06.csv", index = False)
       doc_final = np.add(doclm, docrm) / np.transpose(volume)
       poc_final = np.add(poclm, pocrm) / np.transpose(volume)
+      chla_scaled_final = stats.zscore(poc_final, axis=None)
       pd.DataFrame(doc_final).to_csv(training_data_path+"/doc_final06.csv", index = False)
       pd.DataFrame(poc_final).to_csv(training_data_path+"/poc_final06.csv", index = False)
+      pd.DataFrame(chla_scaled_final).to_csv(training_data_path+"/scaled_chla_final06.csv", index = False)
       
       secchim = np.transpose(1.7/kd_lightm)
       pd.DataFrame(secchim).to_csv(training_data_path+"/secchi_final06.csv", index = False)
