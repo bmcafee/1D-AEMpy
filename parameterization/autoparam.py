@@ -13,14 +13,14 @@ import random
 import tempfile
 import gc
 import sys
-sys.path.append("D:/bensd/Documents/Python_Workspace/1D-AEMpy/src")
+sys.path.append("C:/Users/benne/Documents/Python_Workspace/1D-AEMpy/src")
 
-tempfile.tempdir = "D:\\bensd\\Documents\\RTmp_Folders"
+#tempfile.tempdir = "D:\\bensd\\Documents\\RTmp_Folders"
 gc.enable()
 
 #os.chdir("/home/robert/Projects/1D-AEMpy/src")
 #os.chdir("C:/Users/ladwi/Documents/Projects/R/1D-AEMpy/src")
-os.chdir("D:/bensd/Documents/Python_Workspace/1D-AEMpy/src")
+os.chdir("C:/Users/benne/Documents/Python_Workspace/1D-AEMpy/src")
 from processBased_lakeModel_functions import get_hypsography, provide_meteorology, initial_profile, run_wq_model, wq_initial_profile, provide_phosphorus, do_sat_calc, calc_dens #, heating_module, diffusion_module, mixing_module, convection_module, ice_module
 
 

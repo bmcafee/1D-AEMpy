@@ -1,0 +1,126 @@
+---
+title: "summarytesting"
+author: "Bennett McAfee"
+date: "2024-07-11"
+output: html_document
+---
+
+
+
+```{r}
+library(tidyverse)
+library(arrow)
+library(zoo)
+
+data_lf <- open_dataset("C:\\Users\\benne\\Documents\\RStudio Workspace\\EcoKGML_Data_Cleaning\\DataCleaning_Scripts\\data\\LowFrequency",
+                        schema = schema(field("source", string()), 
+                                        field("datetime", timestamp()),
+                                        field("lake_id", string()),
+                                        field("depth", double()),
+                                        field("variable", string()),
+                                        field("unit", string()),
+                                        field("observation", double()),
+                                        field("flag", string())))
+
+data_hf <- open_dataset("C:\\Users\\benne\\Documents\\RStudio Workspace\\EcoKGML_Data_Cleaning\\DataCleaning_Scripts\\data\\\\HighFrequency", 
+                        schema = schema(field("source", string()), 
+                                        field("datetime", timestamp()),
+                                        field("lake_id", string()),
+                                        field("depth", double()),
+                                        field("variable", string()),
+                                        field("unit", string()),
+                                        field("observation", double()),
+                                        field("flag", string())))
+
+```
+
+```{r, eval = FALSE}
+data_hf_sum <- data_hf %>%
+  select(datetime, lake_id, variable) %>%
+  #group_by(lake_id, variable) %>%
+  #summarize(n = n()) %>%
+  collect()
+
+data_hf_sum <- data_hf_sum %>% group_by(lake_id) %>%
+  summarize(n_var = length(unique(variable)), n_obs = n(), first = min(datetime), last = max(datetime))
+colnames(data_hf_sum) <- c("lake_id", "n_hf_var", "n_hf_obs", "hf_first_year", "hf_last_year")
+
+gc()
+
+data_lf_sum <- data_lf %>%
+  select(datetime, lake_id, variable) %>%
+  collect() %>% 
+  group_by(lake_id) %>%
+  summarize(n_lf_var = length(unique(variable)), n_lf_obs = n(), lf_first_year = min(datetime), lf_last_year = max(datetime))
+
+#Lake_Info <- read_csv("~/RStudio Workspace/EcoKGML_Data_Cleaning/Lake_Info.csv") %>% select(lake_id, lake_name)
+all_data <- merge(data_lf_sum, data_hf_sum, all = TRUE)
+#all_data <- merge(Lake_Info, all_data)
+
+#write.csv(all_data, "lake_obs_table.csv",row.names = FALSE)
+
+gc()
+
+all_data <- all_data %>% mutate(hf_timespan = difftime(hf_last_year, hf_first_year, units = "weeks")/52, lf_timespan = difftime(lf_last_year, lf_first_year, units = "weeks")/52)
+
+```
+
+
+
+```{r, eval=FALSE}
+
+hf_me <- data_hf %>% select(-source) %>% filter(lake_id == "ME") %>% filter(variable %in% c("temp", "do", "chla", "phyco")) %>% filter(depth == 1) %>%  collect()
+
+hf_tr <- data_hf %>% select(-source) %>% filter(lake_id == "TR") %>% filter(variable %in% c("temp", "do", "chla", "phyco")) %>% filter(depth == 0.5) %>% collect()
+
+lf_me <- data_lf %>% select(-source) %>% filter(lake_id == "ME") %>% filter(variable %in% c("temp", "do")) %>% filter(depth == 1 | depth == 22) %>% collect()
+
+lf_tr <- data_lf %>% select(-source) %>% filter(lake_id == "TR") %>% filter(variable %in% c("temp", "do")) %>% filter(depth == 1 | depth == 31) %>% collect()
+
+write.csv(hf_me, file = "data/paul_requests/mendota_hf_all.csv", row.names = FALSE, na = "")
+write.csv(hf_tr, file = "data/paul_requests/trout_hf_all.csv", row.names = FALSE, na = "")
+write.csv(lf_me, file = "data/paul_requests/mendota_lf_all.csv", row.names = FALSE, na = "")
+write.csv(lf_me %>% filter(year(datetime) >= 2017 & year(datetime) <= 2020), file = "data/paul_requests/mendota_lf_2017-2020.csv", row.names = FALSE, na = "")
+write.csv(lf_tr, file = "data/paul_requests/trout_lf_all.csv", row.names = FALSE, na = "")
+write.csv(lf_tr %>% filter(year(datetime) >= 2017 & year(datetime) <= 2020), file = "data/paul_requests/trout_lf_2017-2020.csv", row.names = FALSE, na = "")
+
+
+```
+
+```{r}
+data_lf_sum <- data_lf %>% filter(lake_id == "ME" & variable == "poc") %>% collect() %>% filter(depth == 3) %>% mutate(obs_scaled = scale(observation))
+
+data_hf_sum <- data_hf %>% filter(lake_id == "ME" & variable %in% c("phyco", "fdom", "chla")) %>% collect() %>% filter(datetime %in% data_lf_sum$datetime) %>% mutate(obs_scaled = scale(observation))
+
+all_data <- rbind(data_hf_sum, data_lf_sum) 
+
+ggplot(data = all_data, aes(x = datetime, y = obs_scaled, color = variable))+
+  geom_point()+
+  geom_smooth(se = FALSE)
+
+all_data_wider <- all_data %>% select(datetime, variable, observation) %>% pivot_wider(names_from = variable, values_from = observation)
+
+ggplot(data = all_data_wider, aes(x = poc, y = chla))+
+  geom_point()+
+  geom_smooth(method = "lm")
+```
+
+
+```{r}
+data_hf_chla <- data_hf %>% filter(lake_id == "ME" & variable == "chla") %>% collect() %>% filter(lubridate::year(datetime) >= 2019) %>% mutate(scaled_obs = scale(observation))
+
+data_lf_chla <- data_lf %>% filter(lake_id == "ME" & variable == "chla" & depth != -99) %>% collect() %>% filter(lubridate::year(datetime) >= 2016) %>% mutate(scaled_obs = scale(observation))
+
+chla_all <- rbind(data_hf_chla, data_lf_chla)
+
+data <- chla_all %>%
+    mutate(hour = floor_date(as_datetime(datetime), unit = "hour"))%>%
+    select(depth, scaled_obs, hour) %>%
+    pivot_wider(names_from = depth, values_from = scaled_obs, values_fn = mean)
+names(data)[names(data) == 'hour'] <- 'datetime'
+data$datetime <- format(as.POSIXct(data$datetime), "%Y-%m-%d %H:%M:%S")
+filename <- paste0("C:/Users/benne/Documents/Python_Workspace/1D-AEMpy/output/", "scaled_chla", "_obs.csv")
+write.csv(data, file = filename, row.names = FALSE)
+
+
+```
