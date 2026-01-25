@@ -1,0 +1,54 @@
+{
+  "m3": {
+    "input_columns": [
+      "depth",
+      "day_of_year_list",
+      "time_of_day_list",
+      "temp_initial00",
+      "do_bc02",
+      "docl_bc02", 
+      "docr_bc02",
+      "pocl_bc02",
+      "pocr_bc02",
+      "area_input",
+      "volume_input"
+    ],
+    "output_columns": [
+      "do_pd03",
+      "docr_pd03",
+      "docl_pd03", 
+      "pocr_pd03",
+      "pocl_pd03"
+    ],
+    "input_binary": [],
+    "training_frac": 0.60,
+    "val_frac": 0.20,
+    "depth_steps": 50
+  },
+  "m4": {
+    "input_columns": [
+      "depth",
+      "day_of_year_list",
+      "time_of_day_list",
+      "temp_initial00",
+      "do_pd03",
+      "docl_pd03",
+      "docr_pd03",
+      "pocl_pd03",
+      "pocr_pd03",
+      "kz_initial00",
+      "Ten_Meter_Elevation_Wind_Speed_meterPerSecond",
+      "area_input",
+      "volume_input"
+    ],
+    "output_columns": [
+      "do_diff04",
+      "scaled_chla_final06",
+      "doc_diff04"
+    ],
+    "input_binary": [],
+    "training_frac": 0.60,
+    "val_frac": 0.20,
+    "depth_steps": 50
+  }
+}
